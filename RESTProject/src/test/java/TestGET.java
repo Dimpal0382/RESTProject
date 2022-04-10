@@ -18,7 +18,7 @@ public class TestGET {
     @Test
     public void testGETAllTeam(){
         Map<String,String> allTeam = personServiceHelper.getAllTeam();
-       assertNotNull(allTeam, "List is not empty");
+        assertNotNull(allTeam, "Map is not empty");
     }
 
 }

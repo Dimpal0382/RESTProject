@@ -33,6 +33,7 @@ public class PersonServiceHelper {
     }
 
     public Map<String,String> getAllTeam() {
+        Endpoints.GET_ALL_TEAM= Endpoints.GET_ALL_TEAM.replaceAll("YEAR","20202021");
         Response response = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
@@ -46,18 +47,19 @@ public class PersonServiceHelper {
         model.Response r = response.as(model.Response.class);
         model.Teams t = new Teams();
         model.TeamStats stats = new TeamStats();
-        Map<String, String> map1 = new HashMap<>();
+        Map<String, String> allteam = new HashMap<>();
         for (int i = 0; i < r.getTeams().size(); i++) {
             String teampts = String.valueOf(r.getTeams().get(i).getTeamStats().get(0).getSplitsList().get(0).stat.getPts());
             String teamname = r.getTeams().get(i).getName();
-            map1.put(teamname, teampts);
+            allteam.put(teamname, teampts);
         }
-
+        allteam.forEach((k, v) -> System.out.println( k + "-" + v));
+        System.out.print("\n Top10Team \n");
         Stream<Map.Entry<String, String>> sorted =
-                map1.entrySet().stream()
+                allteam.entrySet().stream()
                         .sorted(reverseOrder(Map.Entry.comparingByValue())).limit(10);
         sorted.forEach(en -> System.out.println(en.getKey() + " - " + en.getValue()));
-       return map1;
+        return allteam;
 
     }
 
