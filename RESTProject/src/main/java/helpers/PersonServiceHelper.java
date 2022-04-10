@@ -1,37 +1,38 @@
 package helpers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import constants.Endpoints;
 import io.restassured.RestAssured;
-import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import io.restassured.http.ContentType;
-//import model.Person;
 
-import java.lang.reflect.Type;
+import model.*;
+import constants.Endpoints;
+import utils.ConfigManager;
+
+import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.reverseOrder;
 
 public class PersonServiceHelper {
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
     public static String BASE_URL;
 
     static {
-        //BASE_URL = ConfigManager.getInstance().getAsString("base_Url");
-        BASE_URL =  "https://statsapi.web.nhl.com/api/v1/teams/?expand=team.stats&season=20202021";
+        try {
+            BASE_URL = String.valueOf(ConfigManager.getInstance().getAsString("base_Url"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public PersonServiceHelper (){
+    public PersonServiceHelper() {
         RestAssured.baseURI = BASE_URL;
 
-
     }
 
-    public List<String> getAllTeam() {
+    public Map<String,String> getAllTeam() {
         Response response = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
@@ -41,51 +42,62 @@ public class PersonServiceHelper {
                 .response()
                 .andReturn();
 
-        //JsonPath jsonPathEvaluator =response.jsonPath();
 
-        //Type type = new TypeRef<List<Person>>(){}.getType();
-        //List <Person> personList = response.as(type);
-        List<List<List<Map<String, Map<String, Object>>>>> allTeamData = response.path("teams.teamStats.splits");
-
-
-
-        Map<String,String> map1 = new HashMap<>();
-        for (int i=0; i< allTeamData.size(); i++){
-            String teamname = (String) allTeamData.get(i).get(0).get(0).get("team").get("name");
-            String teampts = String.valueOf(allTeamData.get(i).get(0).get(0).get("stat").get("pts"));
-            map1.put(teamname,teampts);
-
+        model.Response r = response.as(model.Response.class);
+        model.Teams t = new Teams();
+        model.TeamStats stats = new TeamStats();
+        Map<String, String> map1 = new HashMap<>();
+        for (int i = 0; i < r.getTeams().size(); i++) {
+            String teampts = String.valueOf(r.getTeams().get(i).getTeamStats().get(0).getSplitsList().get(0).stat.getPts());
+            String teamname = r.getTeams().get(i).getName();
+            map1.put(teamname, teampts);
         }
-        Stream<Map.Entry<String, String >> sorted =
+
+        Stream<Map.Entry<String, String>> sorted =
                 map1.entrySet().stream()
                         .sorted(reverseOrder(Map.Entry.comparingByValue())).limit(10);
-
-        System.out.println(sorted);
-        sorted.forEach(en -> System.out.println(en.getKey() +" - "+ en.getValue()));
-        List<String> l = sorted.map(k -> k.getKey()).toList();
-        Collections.reverse(l);
-        return l;
+        sorted.forEach(en -> System.out.println(en.getKey() + " - " + en.getValue()));
+       return map1;
 
     }
 
-//    public List<Integer> extractListOfMapsOfElements_findAllTeamData() {
-//        Response response = RestAssured
-//                .given()
-//                .contentType(ContentType.JSON)
-//                .get(Endpoints.GET_ALL_TEAM)
-//                .then()
-//                .extract()
-//                .response()
-//                .andReturn();
-//        //List<Map<Integer,String>> allTeamData = response.path("teams.teamStats.splits.team.id","teams.teamStats.splits.team.name");
-//        //allTeamData.sort();
-//        List <Integer> allTeamData = response.path("teams.teamStats.splits.stat.pts");
-//        return allTeamData;
-//        //System.out.println(allTeamData);
-//    }
+    public List<String> getAllPlayers() {
+        Response response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .get(Endpoints.GET_ALL_TEAM)
+                .then()
+                .extract()
+                .response()
+                .andReturn();
 
+        model.Response r = response.as(model.Response.class);
+        Teams t = new Teams();
+        TeamStats stats = new TeamStats();
 
+        List<List<List<Map<String, Map<String, Object>>>>> allTeamData = response.path("teams.teamStats.splits");
 
+        for (int i = 0; i < r.getTeams().size(); i++) {
+            String teamId = String.valueOf(r.getTeams().get(i).getTeamStats().get(0).getSplitsList().get(0).team.getId());
+            //l1.add(teamId);
+            Endpoints.GET_TEAMS_ROSTER= Endpoints.GET_TEAMS_ROSTER.replaceAll("ID",teamId);
+
+            Response r1 = RestAssured
+                    .given()
+                    .contentType(ContentType.JSON)
+                    .get(Endpoints.GET_TEAMS_ROSTER)
+                    .then()
+                    .extract()
+                    .response()
+                    .andReturn();
+            model.PersonResponse pr = r1.as(PersonResponse.class);
+            List<List<Map<String, Map<String, Object>>>> allRoster = r1.path("teams.roster.roster");
+            //String personId = r1.get(0).get(0).get("person").get("id");
+                //List<String> l1 = response1.path("roster");
+            }
+            // l1.forEach(System.out::println);
+        return null;
+        }
 }
 
 

@@ -1,33 +1,32 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-//@JsonInclude(JsonInclude.Include.NON_NULL)
-
-import java.util.List;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Person {
 
-    class TeamData {
-        String id;
-        String name;
-    }
+    @JsonProperty("id")
+    public Integer id;
 
-    class Stats {
-        Integer points;
-        Integer rank;
-    }
+    @JsonProperty("fullName")
+    public String fullName;
 
 
-    class TeamStats {
-        TeamData tData;
-        Stats s;
-    }
 
-    class SplitStats {
-        List<TeamStats> stats;
+    //public Object id;
+   // public Object name;
+
+
+    public Person() {
     }
 
 
+    public Integer getId() { return id; }
+
+    public void setId(Integer id) { this.id = id; }
+
+    public String getFullName() { return fullName;}
+
+    public void setFullName(Object name) { this.fullName = fullName;}
 }
-
