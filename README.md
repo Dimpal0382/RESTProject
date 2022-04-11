@@ -2,6 +2,7 @@
 RESTProject is small REST API test framework.
 # Download and Install
 jdk https://download.oracle.com/java/18/latest/jdk-18_linux-x64_bin.rpm
+maven https://maven.apache.org/download.cgi
 intellij idea https://www.jetbrains.com/idea/download/#section=windows
 # Used tools and frameworks
 Rest-Assured
@@ -16,3 +17,6 @@ TestNG
 # Run
 Run the class called "TestGET.java"(RESTProject/RESTProject/src/test/java/) to get the output of task 4,5,7.b
 It will Display the top10team of NHLseason 20202021.
+
+To run it from command line
+run the command "mvn test -Dtest="TestGET"" from the commandline
