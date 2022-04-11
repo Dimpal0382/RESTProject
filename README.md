@@ -18,5 +18,5 @@ TestNG
 Run the class called "TestGET.java"(RESTProject/RESTProject/src/test/java/) to get the output of task 4,5,7.b
 It will Display the top10team of NHLseason 20202021.
 
-To run it from command line
-run the command "mvn test -Dtest="TestGET"" from the commandline
+To run it from command line 
+run the command "mvn test -Dtest="TestGET"" from the commandline (prerequisites are jdk and maven)
